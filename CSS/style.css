@@ -1,0 +1,62 @@
+/* Estilos generales */
+body {
+    font-family: 'Comic Sans MS', 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    background-color: #ffecb3;
+    color: #333;
+}
+
+header {
+    background-color: #4caf50;
+    color: #fff;
+    text-align: center;
+    padding: 20px;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+/* Contenedor para los botones */
+.btn-container {
+    display: flex;
+    flex-direction: column; /* Cambiado a columna para centrar verticalmente */
+    align-items: center;
+    margin-top: 20px;
+}
+
+/* Estilos para los botones */
+.btn {
+    display: inline-block;
+    padding: 15px 30px;
+    background-color: #f39c12; /* Cambiado a un color naranja */
+    color: #fff;
+    text-decoration: none;
+    border: 2px solid #d35400; /* Borde más oscuro */
+    border-radius: 15px;
+    cursor: pointer;
+    font-size: 18px;
+    margin: 10px;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn:hover {
+    background-color: #d35400; /* Color naranja más oscuro al hacer hover */
+    transform: scale(1.1);
+}
+
+/* Estilos adicionales para un botón diferente */
+.btn-secondary {
+    background-color: #3498db; /* Cambiado a un color azul */
+}
+
+.btn-secondary:hover {
+    background-color: #2980b9; /* Color azul más oscuro al hacer hover */
+}
