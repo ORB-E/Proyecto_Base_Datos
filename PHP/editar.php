@@ -3,7 +3,7 @@
 include 'connect.php';
 
 // Obtener el ID del formulario
-$id = $_POST["id"];
+$id = $_GET["id"];
 
 // Consultar la base de datos para obtener los detalles de la tarea con el ID especificado
 $sql = "SELECT * FROM tareas WHERE id = $id; ";
@@ -134,12 +134,6 @@ $consulta = mysqli_query($conn, $sql);
         <h1>EDITAR TAREA</h1>
     </header>
     <main>
-        <!-- Formulario para buscar una tarea por ID -->
-        <form action="editar.php" method="post">
-            ID: <input type="number" name="id">
-            <input type="submit" value="Buscar"><br>
-        </form>
-
         <!-- Formulario para actualizar la tarea -->
         <form method="post" action="update.php">
             <?php
@@ -200,7 +194,7 @@ $consulta = mysqli_query($conn, $sql);
             ?>
         </form>
     </main>
-    <a href="../index.html"> <input type="button" value="REGRESAR A LA PAGINA PRINCIPAL"> </a>
+    <a href="../index.php"> <input type="button" value="REGRESAR A LA PAGINA PRINCIPAL"> </a>
 </body>
 
 </html>

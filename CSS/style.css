@@ -20,7 +20,7 @@ main {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 100vh;
+    min-height: 50vh;
 }
 
 /* Contenedor para los botones */
@@ -59,4 +59,32 @@ main {
 
 .btn-secondary:hover {
     background-color: #2980b9; /* Color azul más oscuro al hacer hover */
+}
+
+.container {
+    opacity: 0.9;
+    border: 2px solid black;
+    border-radius: 15px;
+    padding: 20px;
+    width: 300px;
+    justify-content: center;
+    text-align: center;
+}
+
+.login-section {
+    display: none;
+}
+
+.toggle-btn {
+    cursor: pointer;
+    color: #3897f0;
+    text-decoration: underline;
+}
+
+.body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
 }

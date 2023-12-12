@@ -1,34 +1,51 @@
 <?php
-    // Incluir el archivo de conexión a la base de datos
-    include 'connect.php';
+include 'connect.php';
+session_start();
 
-    // Verificar si la solicitud HTTP es de tipo POST
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        // Obtener los datos del formulario
-        $Titulo = $_POST["Titulo"];
-        $Descripcion = $_POST["Descripcion"];
-        $Completado = "NO";
-        $Fecha_Vencimiento = $_POST["Fecha_Vencimiento"];
+// Verificar si el usuario está autenticado
+if (!isset($_SESSION['logueado'])) {
+    // Manejar el caso en el que el usuario no está autenticado
+    echo "Error: Usuario no autenticado.";
+    exit();
+}
 
-        // Crear la consulta SQL para insertar una nueva tarea
-        $sql = "INSERT INTO Tareas (Titulo, Descripcion, Completado, Fecha_Vencimiento)
-        VALUES ('$Titulo', '$Descripcion', '$Completado', '$Fecha_Vencimiento')";
+// Verificar si el usuario está autenticado
+if ($_SESSION['logueado'] === false) {
+    // Redirigir al usuario a la página de inicio de sesión si no está autenticado
+    header("Location: index.php");
+    exit();
+}
 
-        // Ejecutar la consulta
-        $consulta = mysqli_query($conn, $sql);
+// Obtener el ID del usuario autenticado
+$usuario = $_SESSION['username'];
+$stmt_get_user_id = $conn->prepare("SELECT id FROM Usuarios WHERE Username = ?");
+$stmt_get_user_id->bind_param("s", $usuario);
+$stmt_get_user_id->execute();
+$stmt_get_user_id->bind_result($user_id);
+$stmt_get_user_id->fetch();
+$stmt_get_user_id->close();
 
-        // Verificar si la consulta fue exitosa
-        if ($consulta) {
-            echo "<br>";
-            $mensaje = "REGISTRO INSERTADO CON ÉXITO";
-        } else {
-            $mensaje = "ERROR AL INSERTAR EL REGISTRO" . $conn->error;
-        }
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Obtener los datos del formulario
+    $Titulo = $_POST["Titulo"];
+    $Descripcion = $_POST["Descripcion"];
+    $Completado = "NO";
+    $Fecha_Vencimiento = $_POST["Fecha_Vencimiento"];
 
-        // Cerrar la conexión a la base de datos
-        $conn->close();
+    // Insertar la nueva tarea asociada al usuario autenticado
+    $stmt_insert_task = $conn->prepare("INSERT INTO Tareas (Titulo, Descripcion, Completado, Fecha_Vencimiento, Usuario_ID) VALUES (?, ?, ?, ?, ?)");
+    $stmt_insert_task->bind_param("ssssi", $Titulo, $Descripcion, $Completado, $Fecha_Vencimiento, $user_id);
+
+    if ($stmt_insert_task->execute()) {
+        echo "REGISTRO INSERTADO CON ÉXITO";
+    } else {
+        echo "ERROR AL INSERTAR EL REGISTRO: " . $stmt_insert_task->error;
     }
-?>
+
+    $stmt_insert_task->close();
+    $conn->close();
+}
+?> 
 
 <!DOCTYPE html>
 <html lang="en">
@@ -170,7 +187,7 @@
 
         <!-- Pie de página con un enlace para regresar a la página principal -->
         <footer>
-            <a href="../index.html"> <input type="button" value="REGRESAR A LA PAGINA PRINCIPAL"> </a>
+            <a href="../index.php"> <input type="button" value="REGRESAR A LA PAGINA PRINCIPAL"> </a>
         </footer>
     </main>
 </body>

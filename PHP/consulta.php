@@ -2,29 +2,38 @@
 // Incluir el archivo de conexión a la base de datos
 include 'connect.php';
 
-// Consultar todas las tareas ordenadas por fecha de vencimiento
-$sql = "SELECT * FROM Tareas ORDER BY Fecha_Vencimiento;";
-$lista = mysqli_query($conn, $sql);
+// Iniciar la sesión
+session_start();
+
+// Obtener el nombre de usuario del usuario autenticado
+$usuario = $_SESSION['username'];
+
+// Verificar si el usuario está autenticado
+if ($_SESSION['logueado'] === false) {
+    // Redirigir al usuario a la página de inicio de sesión si no está autenticado
+    header("Location: index.php");
+    exit();
+}
+
+// Consultar todas las tareas del usuario actual ordenadas por fecha de vencimiento
+$sql = "SELECT * FROM Tareas WHERE Usuario_ID = (
+    SELECT id FROM Usuarios WHERE Username = ?
+) ORDER BY Completado ASC, Fecha_Vencimiento;";
+
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("s", $usuario);
+$stmt->execute();
 
 // Verificar si hubo un error en la consulta
-if ($lista === false) {
-    $mensaje = "Error";
+if ($stmt === false) {
+    $mensaje = "Error: " . $conn->error; // Usar $conn->error para obtener el mensaje de error
 } else {
+    $lista = $stmt->get_result();
     $mensaje = "Bienvenido";
 }
 
-// Arreglos para almacenar filas completadas y no completadas
-$tareasNoCompletadas = array();
-$tareasCompletadas = array();
-
-// Separar tareas completadas y no completadas
-while ($row = mysqli_fetch_assoc($lista)) {
-    if ($row['Completado'] === 'SI') {
-        $tareasCompletadas[] = $row;
-    } else {
-        $tareasNoCompletadas[] = $row;
-    }
-}
+$stmt->close();
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -59,7 +68,7 @@ while ($row = mysqli_fetch_assoc($lista)) {
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
+
         }
 
         /* Contenedor para la tabla */
@@ -136,40 +145,41 @@ while ($row = mysqli_fetch_assoc($lista)) {
         <div class="table-container">
             <!-- Tabla para mostrar la lista de tareas -->
             <table>
-                <tr>
-                    <th>ID</th>
-                    <th>TITULO</th>
-                    <th class="desc">DESCRIPCION</th>
-                    <th>COMPLETADO</th>
-                    <th>FECHA_VENCIMIENTO</th>
+            <tr>
+                <th> ID </th>
+                <th> TITULO </th>
+                <th class="desc"> DESCRIPCION </th>
+                <th> COMPLETADO </th>
+                <th> FECHA_VENCIMIENTO </th>
+                <th>EDITAR</th>
+            </tr>
+            <!-- Iterar sobre cada tarea y mostrarla en una fila de la tabla -->
+            <?php while ($row = mysqli_fetch_assoc($lista)) { ?>
+                <tr class="<?php echo ($row['Completado'] === 'SI') ? 'completado' : 'no-completado'; ?>">
+                    <td>
+                        <?php echo $row['id']; ?>
+                    </td>
+                    <td>
+                        <?php echo $row['Titulo']; ?>
+                    </td>
+                    <td class="desc">
+                        <?php echo $row['Descripcion']; ?>
+                    </td>
+                    <td>
+                        <?php echo $row['Completado']; ?>
+                    </td>
+                    <td>
+                        <?php echo $row['Fecha_Vencimiento']; ?>
+                    </td>
+                    <td><a href="editar.php?id=<?php echo $row['id']; ?>" class="btn-footer">EDITAR TAREA</a></td>
                 </tr>
-                <!-- Iterar sobre cada tarea no completada y mostrarla en una fila de la tabla -->
-                <?php foreach ($tareasNoCompletadas as $row) { ?>
-                    <tr class="no-completado">
-                        <td><?php echo $row['id']; ?></td>
-                        <td><?php echo $row['Titulo']; ?></td>
-                        <td class="desc"><?php echo $row['Descripcion']; ?></td>
-                        <td><?php echo $row['Completado']; ?></td>
-                        <td><?php echo $row['Fecha_Vencimiento']; ?></td>
-                    </tr>
-                <?php } ?>
-
-                <!-- Iterar sobre cada tarea completada y mostrarla en una fila de la tabla -->
-                <?php foreach ($tareasCompletadas as $row) { ?>
-                    <tr class="completado">
-                        <td><?php echo $row['id']; ?></td>
-                        <td><?php echo $row['Titulo']; ?></td>
-                        <td class="desc"><?php echo $row['Descripcion']; ?></td>
-                        <td><?php echo $row['Completado']; ?></td>
-                        <td><?php echo $row['Fecha_Vencimiento']; ?></td>
-                    </tr>
-                <?php } ?>
-            </table>
+            <?php } ?>
+        </table>
         </div>
     </main>
     <!-- Pie de página con un enlace para regresar a la página principal -->
     <footer>
-        <a href="../index.html" class="btn-footer">REGRESAR A LA PAGINA PRINCIPAL</a>
+        <a href="../index.php" class="btn-footer">REGRESAR A LA PAGINA PRINCIPAL</a>
     </footer>
 </body>
 

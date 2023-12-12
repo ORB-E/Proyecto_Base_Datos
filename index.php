@@ -1,3 +1,7 @@
+<?php
+    session_start();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,6 +14,20 @@
 <body>
     <header>
         <h1> APP PARA LISTA DE TAREAS </h1>
+        <?php
+        if ($_SESSION['logueado'] === true) {
+            echo "<p>¡Bienvenido, " . $_SESSION['username'];
+            ?>
+            <form action="./PHP/handler_salir.php">
+                <input type="submit" value="CERRAR SESIÓN" class="btn">
+            </form>
+            <?php
+        } else {
+            ?>
+            <a href="./PHP/index.php" class="btn"> ¿TIENES CUENTA? </a>
+            <?php
+        }
+        ?>
     </header>
     <main>
         <!-- Contenedor para los botones -->
@@ -19,9 +37,6 @@
 
             <!-- Enlace para insertar nuevos datos -->
             <a href="./PHP/insertar.php" class="btn">Insertar</a> <br>
-
-            <!-- Enlace para editar datos existentes -->
-            <a href="./PHP/editar.php" class="btn">Editar</a>
         </div>
     </main>
 </body>
